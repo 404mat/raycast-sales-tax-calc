@@ -2,6 +2,13 @@ import { ActionPanel, Action, List } from "@raycast/api";
 import { useState, useEffect } from "react";
 import { taxRates } from "./tax-rates";
 
+type TaxComponent = {
+  name: string;
+  rate: number;
+};
+
+type Region = TaxComponent[];
+
 export default function Command() {
   const [searchText, setSearchText] = useState("");
   const [amount, setAmount] = useState(0);
@@ -9,6 +16,7 @@ export default function Command() {
   const [tax, setTax] = useState(0);
   const [total, setTotal] = useState(0);
   const [regionFound, setRegionFound] = useState(false);
+  const [taxBreakdown, setTaxBreakdown] = useState<{ name: string; amount: number }[]>([]);
 
   useEffect(() => {
     const regex = /(\d+(\.\d+)?)\s*(dollars|in|for)\s*(.+)/i;
@@ -27,14 +35,21 @@ export default function Command() {
   useEffect(() => {
     if (amount > 0 && regionName) {
       let found = false;
-      for (const country in taxRates) {
-        const region = taxRates[country as keyof typeof taxRates]?.find(
-          (r) => r.name.toLowerCase() === regionName.toLowerCase(),
-        );
-        if (region) {
-          const calculatedTax = amount * region.tax;
-          setTax(calculatedTax);
-          setTotal(amount + calculatedTax);
+      for (const country of Object.keys(taxRates)) {
+        const regions = taxRates[country as keyof typeof taxRates];
+        const regionKey = Object.keys(regions).find((key) => key.toLowerCase() === regionName.toLowerCase());
+
+        if (regionKey) {
+          const region = regions[regionKey as keyof typeof regions] as Region;
+          const breakdown = region.map((taxComponent: TaxComponent) => ({
+            name: taxComponent.name,
+            amount: amount * taxComponent.rate,
+          }));
+          const totalTax = breakdown.reduce((sum: number, tax) => sum + tax.amount, 0);
+
+          setTax(totalTax);
+          setTotal(amount + totalTax);
+          setTaxBreakdown(breakdown);
           setRegionFound(true);
           found = true;
           break;
@@ -51,8 +66,8 @@ export default function Command() {
       {regionFound ? (
         <>
           <List.Item
-            title={`Total: ${total.toFixed(2)}`}
-            subtitle={`Amount: ${amount.toFixed(2)} + Tax: ${tax.toFixed(2)}`}
+            title="Total"
+            accessories={[{ text: total.toFixed(2) }]}
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard title="Copy Total" content={total.toFixed(2)} />
@@ -61,8 +76,8 @@ export default function Command() {
             }
           />
           <List.Item
-            title="Calculation Breakdown"
-            subtitle={`Based on ${regionName}'s tax rate of ${((tax / amount) * 100).toFixed(2)}%`}
+            title="Added tax"
+            subtitle={`${taxBreakdown.map((t) => `${t.name}: ${t.amount.toFixed(2)}`).join(" + ")}`}
           />
         </>
       ) : (
