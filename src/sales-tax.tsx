@@ -110,7 +110,7 @@ export default function Command(props: CommandProps) {
                 </ActionPanel>
               }
             />
-            <List.Item title="Breakdown :" />
+            <List.Item title="Added tax :" />
             {taxBreakdown.map((t, index) => (
               <List.Item
                 key={index}
