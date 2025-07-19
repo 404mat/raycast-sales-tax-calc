@@ -1,4 +1,4 @@
-import { ActionPanel, Action, List, LaunchProps } from "@raycast/api";
+import { ActionPanel, Action, List, LaunchProps, getPreferenceValues } from "@raycast/api";
 import { useState, useEffect } from "react";
 import { taxRates } from "./tax-rates";
 
@@ -16,22 +16,33 @@ type CommandProps = LaunchProps<{
   };
 }>;
 
+type Preferences = {
+  defaultCountry: string;
+  defaultRegion: string;
+};
+
 export default function Command(props: CommandProps) {
   const [searchText, setSearchText] = useState("");
   const [amount, setAmount] = useState(0);
   const [regionName, setRegionName] = useState("");
+  const [countryName, setCountryName] = useState("");
   const [tax, setTax] = useState(0);
   const [total, setTotal] = useState(0);
   const [regionFound, setRegionFound] = useState(false);
   const [taxBreakdown, setTaxBreakdown] = useState<{ name: string; amount: number }[]>([]);
 
   useEffect(() => {
-    if (props.arguments?.amount && props.arguments?.region) {
+    const { defaultCountry, defaultRegion } = getPreferenceValues<Preferences>();
+
+    if (props.arguments?.amount) {
       const parsedAmount = parseFloat(props.arguments.amount);
       if (!isNaN(parsedAmount)) {
         setAmount(parsedAmount);
-        setRegionName(props.arguments.region.trim());
       }
+    }
+
+    if (props.arguments?.region) {
+      setRegionName(props.arguments.region.trim());
     } else {
       const regex = /(\d+(\.\d+)?)\s*(dollars|in|for)\s*(.+)/i;
       const match = searchText.match(regex);
@@ -43,6 +54,9 @@ export default function Command(props: CommandProps) {
           setAmount(parsedAmount);
           setRegionName(parsedRegion.trim());
         }
+      } else if (props.arguments.amount) {
+        setRegionName(defaultRegion);
+        setCountryName(defaultCountry);
       }
     }
   }, [searchText, props.arguments]);
@@ -50,7 +64,9 @@ export default function Command(props: CommandProps) {
   useEffect(() => {
     if (amount > 0 && regionName) {
       let found = false;
-      for (const country of Object.keys(taxRates)) {
+      const searchCountry = countryName ? [countryName] : Object.keys(taxRates);
+
+      for (const country of searchCountry) {
         const regions = taxRates[country as keyof typeof taxRates];
         const regionKey = Object.keys(regions).find((key) => key.toLowerCase() === regionName.toLowerCase());
 
@@ -74,7 +90,7 @@ export default function Command(props: CommandProps) {
         setRegionFound(false);
       }
     }
-  }, [amount, regionName]);
+  }, [amount, regionName, countryName]);
 
   return (
     <List onSearchTextChange={setSearchText} searchText={searchText} throttle>

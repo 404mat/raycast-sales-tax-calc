@@ -6,6 +6,24 @@
   "icon": "extension-icon.png",
   "author": "404mat",
   "license": "MIT",
+  "preferences": [
+    {
+      "name": "defaultCountry",
+      "title": "Default Country",
+      "description": "Your default country for tax calculations.",
+      "type": "textfield",
+      "required": true,
+      "default": "Canada"
+    },
+    {
+      "name": "defaultRegion",
+      "title": "Default Region",
+      "description": "Your default region for tax calculations (e.g., Ontario, California).",
+      "type": "textfield",
+      "required": true,
+      "default": "Ontario"
+    }
+  ],
   "commands": [
     {
       "name": "sales-tax",
