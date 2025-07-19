@@ -96,29 +96,34 @@ export default function Command(props: CommandProps) {
     <List onSearchTextChange={setSearchText} searchText={searchText} throttle>
       {regionFound ? (
         <>
-          <List.Item
-            title="Total"
-            subtitle={total.toFixed(2)}
-            actions={
-              <ActionPanel>
-                <Action.CopyToClipboard title="Copy Total" content={total.toFixed(2)} />
-                <Action.CopyToClipboard title="Copy Tax" content={tax.toFixed(2)} />
-              </ActionPanel>
-            }
-          />
-          <List.Item title="Breakdown :" />
-          {taxBreakdown.map((t, index) => (
+          <List.Section title="Results">
             <List.Item
-              key={index}
-              title={t.name}
-              subtitle={t.amount.toFixed(2)}
+              title="Total"
+              subtitle={total.toFixed(2)}
               actions={
                 <ActionPanel>
-                  <Action.CopyToClipboard title={`Copy ${t.name}`} content={t.amount.toFixed(2)} />
+                  <Action.CopyToClipboard title="Copy Total" content={total.toFixed(2)} />
+                  <Action.CopyToClipboard title="Copy Tax" content={tax.toFixed(2)} />
                 </ActionPanel>
               }
             />
-          ))}
+            <List.Item title="Breakdown :" />
+            {taxBreakdown.map((t, index) => (
+              <List.Item
+                key={index}
+                title={t.name}
+                subtitle={t.amount.toFixed(2)}
+                actions={
+                  <ActionPanel>
+                    <Action.CopyToClipboard title={`Copy ${t.name}`} content={t.amount.toFixed(2)} />
+                  </ActionPanel>
+                }
+              />
+            ))}
+          </List.Section>
+          <List.Section>
+            <List.Item title="" subtitle="Data and rates are adjusted manually. May be subject to changes." />
+          </List.Section>
         </>
       ) : (
         <List.EmptyView title="e.g., '100 in Quebec' or 'tax for 50 in ON'" />
