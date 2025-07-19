@@ -82,7 +82,7 @@ export default function Command(props: CommandProps) {
         <>
           <List.Item
             title="Total"
-            accessories={[{ text: total.toFixed(2) }]}
+            subtitle={total.toFixed(2)}
             actions={
               <ActionPanel>
                 <Action.CopyToClipboard title="Copy Total" content={total.toFixed(2)} />
@@ -90,10 +90,19 @@ export default function Command(props: CommandProps) {
               </ActionPanel>
             }
           />
-          <List.Item
-            title="Added tax"
-            subtitle={`${taxBreakdown.map((t) => `${t.name}: ${t.amount.toFixed(2)}`).join(" + ")}`}
-          />
+          <List.Item title="Breakdown :" />
+          {taxBreakdown.map((t, index) => (
+            <List.Item
+              key={index}
+              title={t.name}
+              subtitle={t.amount.toFixed(2)}
+              actions={
+                <ActionPanel>
+                  <Action.CopyToClipboard title={`Copy ${t.name}`} content={t.amount.toFixed(2)} />
+                </ActionPanel>
+              }
+            />
+          ))}
         </>
       ) : (
         <List.EmptyView title="e.g., '100 in Quebec' or 'tax for 50 in ON'" />
