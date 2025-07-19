@@ -1,4 +1,4 @@
-import { ActionPanel, Action, List } from "@raycast/api";
+import { ActionPanel, Action, List, LaunchProps } from "@raycast/api";
 import { useState, useEffect } from "react";
 import { taxRates } from "./tax-rates";
 
@@ -9,7 +9,14 @@ type TaxComponent = {
 
 type Region = TaxComponent[];
 
-export default function Command() {
+type CommandProps = LaunchProps<{
+  arguments: {
+    amount: string;
+    region: string;
+  };
+}>;
+
+export default function Command(props: CommandProps) {
   const [searchText, setSearchText] = useState("");
   const [amount, setAmount] = useState(0);
   const [regionName, setRegionName] = useState("");
@@ -19,18 +26,26 @@ export default function Command() {
   const [taxBreakdown, setTaxBreakdown] = useState<{ name: string; amount: number }[]>([]);
 
   useEffect(() => {
-    const regex = /(\d+(\.\d+)?)\s*(dollars|in|for)\s*(.+)/i;
-    const match = searchText.match(regex);
-
-    if (match) {
-      const parsedAmount = parseFloat(match[1]);
-      const parsedRegion = match[4];
+    if (props.arguments?.amount && props.arguments?.region) {
+      const parsedAmount = parseFloat(props.arguments.amount);
       if (!isNaN(parsedAmount)) {
         setAmount(parsedAmount);
-        setRegionName(parsedRegion.trim());
+        setRegionName(props.arguments.region.trim());
+      }
+    } else {
+      const regex = /(\d+(\.\d+)?)\s*(dollars|in|for)\s*(.+)/i;
+      const match = searchText.match(regex);
+
+      if (match) {
+        const parsedAmount = parseFloat(match[1]);
+        const parsedRegion = match[4];
+        if (!isNaN(parsedAmount)) {
+          setAmount(parsedAmount);
+          setRegionName(parsedRegion.trim());
+        }
       }
     }
-  }, [searchText]);
+  }, [searchText, props.arguments]);
 
   useEffect(() => {
     if (amount > 0 && regionName) {

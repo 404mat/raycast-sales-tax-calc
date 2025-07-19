@@ -12,7 +12,21 @@
       "title": "Sales Tax",
       "subtitle": "Calculate sales tax for your region",
       "description": "Calculate sales tax for your region. You can select a default region.",
-      "mode": "view"
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "amount",
+          "placeholder": "Amount",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "region",
+          "placeholder": "Region",
+          "type": "text",
+          "required": false
+        }
+      ]
     }
   ],
   "dependencies": {
