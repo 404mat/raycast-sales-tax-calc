@@ -22,6 +22,14 @@
       "type": "textfield",
       "required": true,
       "default": "Ontario"
+    },
+    {
+      "name": "currencySymbol",
+      "title": "Currency Symbol",
+      "description": "The currency symbol to display next to amounts.",
+      "type": "textfield",
+      "required": false,
+      "default": "$"
     }
   ],
   "commands": [

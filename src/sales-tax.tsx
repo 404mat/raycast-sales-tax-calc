@@ -19,6 +19,7 @@ type CommandProps = LaunchProps<{
 type Preferences = {
   defaultCountry: string;
   defaultRegion: string;
+  currencySymbol: string;
 };
 
 export default function Command(props: CommandProps) {
@@ -30,9 +31,11 @@ export default function Command(props: CommandProps) {
   const [total, setTotal] = useState(0);
   const [regionFound, setRegionFound] = useState(false);
   const [taxBreakdown, setTaxBreakdown] = useState<{ name: string; amount: number }[]>([]);
+  const [currencySymbol, setCurrencySymbol] = useState("");
 
   useEffect(() => {
-    const { defaultCountry, defaultRegion } = getPreferenceValues<Preferences>();
+    const { defaultCountry, defaultRegion, currencySymbol } = getPreferenceValues<Preferences>();
+    setCurrencySymbol(currencySymbol);
 
     if (props.arguments?.amount) {
       const parsedAmount = parseFloat(props.arguments.amount);
@@ -99,11 +102,11 @@ export default function Command(props: CommandProps) {
           <List.Section title="Results">
             <List.Item
               title="Total"
-              subtitle={total.toFixed(2)}
+              subtitle={`${total.toFixed(2)} ${currencySymbol}`}
               actions={
                 <ActionPanel>
-                  <Action.CopyToClipboard title="Copy Total" content={total.toFixed(2)} />
-                  <Action.CopyToClipboard title="Copy Tax" content={tax.toFixed(2)} />
+                  <Action.CopyToClipboard title="Copy Total" content={`${total.toFixed(2)} ${currencySymbol}`} />
+                  <Action.CopyToClipboard title="Copy Tax" content={`${tax.toFixed(2)} ${currencySymbol}`} />
                 </ActionPanel>
               }
             />
@@ -112,10 +115,13 @@ export default function Command(props: CommandProps) {
               <List.Item
                 key={index}
                 title={t.name}
-                subtitle={t.amount.toFixed(2)}
+                subtitle={`${t.amount.toFixed(2)} ${currencySymbol}`}
                 actions={
                   <ActionPanel>
-                    <Action.CopyToClipboard title={`Copy ${t.name}`} content={t.amount.toFixed(2)} />
+                    <Action.CopyToClipboard
+                      title={`Copy ${t.name}`}
+                      content={`${t.amount.toFixed(2)} ${currencySymbol}`}
+                    />
                   </ActionPanel>
                 }
               />
